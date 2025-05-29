@@ -10,6 +10,7 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            transition: background-color 0.5s ease; /* Transição suave para a cor de fundo */
         }
 
         .container {
@@ -31,6 +32,11 @@
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s ease; /* Transição suave para o fundo do botão */
+        }
+
+        .navbar button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Efeito hover para os botões */
         }
 
         .content {
@@ -38,6 +44,14 @@
             background-color: white;
             border-radius: 5px; /* Arredondar os cantos do conteúdo */
             margin-top: 10px;
+            opacity: 0; /* Começa invisível */
+            transform: translateY(20px); /* Move para baixo */
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Transição suave */
+        }
+
+        .content.show {
+            opacity: 1; /* Torna visível */
+            transform: translateY(0); /* Move para a posição original */
         }
 
         .routine {
@@ -50,6 +64,11 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer; /* Muda o cursor para indicar que é clicável */
+            transition: background-color 0.3s ease; /* Transição suave para o fundo */
+        }
+
+        .routine:hover {
+            background-color: #555; /* Efeito hover para as rotinas */
         }
 
         .routine button {
@@ -74,6 +93,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s ease; /* Transição suave para o fundo do botão */
         }
 
         button:hover {
@@ -138,7 +158,7 @@
     <div class="notification" id="notification"></div>
     <div class="confirm-dialog" id="confirmDialog">
         <p id="confirmMessage"></p>
-        <button id="confirmYes">Sim </button>
+        <button id="confirmYes">Sim</button>
         <button id="confirmNo">Não</button>
     </div>
     <div class="container">
@@ -159,25 +179,29 @@
             const content = document.getElementById('content');
             const navbar = document.getElementById('navbar');
             navbar.style.display = 'flex';
-            content.innerHTML = '';
+            content.classList.remove('show'); // Remove a classe de animação
 
-            if (routines.length === 0) {
-                content.innerHTML = '<p>Nenhuma rotina criada</p>';
-            } else {
-                routines.forEach((routine, index) => {
-                    const routineDiv = document.createElement('div');
-                    routineDiv.className = 'routine';
-                    routineDiv.innerHTML = `
-                        <span>${routine}</span>
-                        <div>
-                            <button onclick="openEditDialog(${index})">Editar</button>
-                            <button onclick="openDeleteDialog(${index})">Excluir</button>
-                        </div>
-                    `;
-                    routineDiv.onclick = () => openRoutinePage(index);
-                    content.appendChild(routineDiv);
-                });
-            }
+            setTimeout(() => {
+                content.innerHTML = '';
+                if (routines.length === 0) {
+                    content.innerHTML = '<p>Nenhuma rotina criada</p>';
+                } else {
+                    routines.forEach((routine, index) => {
+                        const routineDiv = document.createElement('div');
+                        routineDiv.className = 'routine';
+                        routineDiv.innerHTML = `
+                            <span>${routine}</span>
+                            <div>
+                                <button onclick="openEditDialog(${index})">Editar</button>
+                                <button onclick="openDeleteDialog(${index})">Excluir</button>
+                            </div>
+                        `;
+                        routineDiv.onclick = () => openRoutinePage(index);
+                        content.appendChild(routineDiv);
+                    });
+                }
+                content.classList.add('show'); // Adiciona a classe de animação
+            }, 300); // Tempo para garantir que o conteúdo seja limpo antes da animação
         }
 
         function openRoutinePage(index) {
@@ -185,19 +209,24 @@
             const navbar = document.getElementById('navbar');
             navbar.style.display = 'none';
             const routineName = routines[index];
-            content.innerHTML = `
-                <button class="back-button" onclick="showRoutines()">Voltar</button>
-                <div class="routine-header">${routineName}</div>
-                <div class="content">
-                    <h2>Adicionar Afazer</h2>
-                    <input type="text" id="taskInput" placeholder="Nome do afazer">
-                    <input type="datetime-local" id="taskDateTime" placeholder="Data e Hora">
-                    <button onclick="addTask(${index})">Adicionar</button>
-                    <h3>Afazeres:</h3>
-                    <div id="taskList"></div>
-                </div>
-            `;
-            displayTasks(index);
+            content.classList.remove('show'); // Remove a classe de animação
+
+            setTimeout(() => {
+                content.innerHTML = `
+                    <button class="back-button" onclick="showRoutines()">Voltar</button>
+                    <div class="routine-header">${routineName}</div>
+                    <div class="content">
+                        <h2>Adicionar Afazer</h2>
+                        <input type="text" id="taskInput" placeholder="Nome do afazer">
+                        <input type="datetime-local" id="taskDateTime" placeholder="Data e Hora">
+                        <button onclick="addTask(${index})">Adicionar</button>
+                        <h3>Afazeres:</h3>
+                        <div id="taskList"></div>
+                    </div>
+                `;
+                displayTasks(index);
+                content.classList.add('show'); // Adiciona a classe de animação
+            }, 300); // Tempo para garantir que o conteúdo seja limpo antes da animação
         }
 
         function addTask(routineIndex) {
@@ -254,7 +283,7 @@
         }
 
         function openDeleteTaskDialog(routineIndex, taskIndex) {
- currentDeleteIndex = taskIndex;
+            currentDeleteIndex = taskIndex;
             const taskName = tasks[routineIndex][taskIndex].name;
             showConfirmDialog(`Tem certeza que deseja excluir o afazer '${taskName}'?`, () => {
                 deleteTask(routineIndex, taskIndex);
@@ -314,11 +343,16 @@
             const content = document.getElementById('content');
             const navbar = document.getElementById('navbar');
             navbar.style.display = 'flex';
-            content.innerHTML = `
-                <h2>Criar Nova Rotina</h2>
-                <input type="text" id="routineInput" placeholder="Nome da nova rotina">
-                <button onclick="addRoutine()"> Criar</button>
-            `;
+            content.classList.remove('show'); // Remove a classe de animação
+
+            setTimeout(() => {
+                content.innerHTML = `
+                    <h2>Criar Nova Rotina</h2>
+                    <input type="text" id="routineInput" placeholder="Nome da nova rotina">
+                    <button onclick="addRoutine()"> Criar</button>
+                `;
+                content.classList.add('show'); // Adiciona a classe de animação
+            }, 300); // Tempo para garantir que o conteúdo seja limpo antes da animação
         }
 
         function addRoutine() {
@@ -365,7 +399,12 @@
             const content = document.getElementById('content');
             const navbar = document.getElementById('navbar');
             navbar.style.display = 'flex';
-            content.innerHTML = '<h2>Configurações</h2><p>Em breve...</p>';
+            content.classList.remove('show'); // Remove a classe de animação
+
+            setTimeout(() => {
+                content.innerHTML = '<h2>Configurações</h2><p>Em breve...</p>';
+                content.classList.add('show'); // Adiciona a classe de animação
+            }, 300); // Tempo para garantir que o conteúdo seja limpo antes da animação
         }
 
         showRoutines();
